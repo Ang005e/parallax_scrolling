@@ -92,7 +92,7 @@ header, footer {
     height: 100vh;
     top: 0;
     left: 0;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(6px);
 }
 
 text {

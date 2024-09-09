@@ -1,21 +1,13 @@
 
 
-let lastScrollIncrement = 0;
-let queuedParallaxFrames = []
-let progress = 0
-let storedStartY = 0
-
 // debounce time between moves of the background parallax to avoid excessive overhead
-let debounceTime = 500
-
-
-// top of main box
-// top of
-
-//ToDo:
-// if theres already an animation running, grab the original start pos and any speed modifiers,
-// then use those values in the new animation
-
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
 
 class Parallax {
     constructor(elemSelector, scrollParentSelector) {
@@ -23,130 +15,142 @@ class Parallax {
         this.parallax = document.querySelector(elemSelector) ;
         this.scrollParent = document.querySelector(scrollParentSelector);
 
-        this.startY = this.getY(this.parallax) + 1
-        this.currentY = this.startY + 1
-        this.targetY = this.getY(this.scrollParent) //document.documentElement.getBoundingClientRect().top + 1
+        this.updateCurrentY()
+        this.startY = this.currentY
+        this.distanceLeft = 1
+        this.updateTargetY() // this will set "this.targetY" //document.documentElement.getBoundingClientRect().top + 1
 
         this.velocity = 1
         this.isMoving = false // flag to check if transition is running
-        this.tempDistanceTest = 0
+        this.throttling = false
 
-        // Bind animationLoop to ensure `this` context is correct
-        // this.animationLoop = this.animationLoop.bind(this);
+        // Bind scroll event with debouncing
+        this.handleScroll = debounce(this.onScroll.bind(this), 10);
+        window.addEventListener('scroll', this.handleScroll);
 
-        let soleScroll = this.handleScrollEvent.bind(this)
-        document.addEventListener("scroll", soleScroll(soleScroll)); // passes this bound function so the listener can be
-        // removed and added back at will.
+        // Initial calculations
+        this.updateCurrentY();
+        this.updateTargetY();
     }
 
-    handleScrollEvent(soleScroll) {
-        // console.log("scroll event")
-        document.addEventListener("scroll", soleScroll)
+    onScroll() {
+        this.updateCurrentY();
+        this.updateTargetY();
 
-        this.setTarget()
-
-        // replace event listener after debounceTime. Reduces unneeded repositioning (by a factor of 10!!!)
-        setTimeout(() => {
-            document.addEventListener("scroll", soleScroll)
-        }, debounceTime)
+        if (!this.isMoving) {
+            this.isMoving = true;
+            this.animationLoop();
+        }
     }
 
-    checkTarget() {
-        // function to check for (meaningful) changes to target position. handle debounce separately?
-
-    }
 
     // get the target scroll position
     setTarget() {
-        // update the target y position
-        this.targetY = window.scrollY /*(document.body.scrollTop + document.documentElement.scrollTop) /
-            (document.documentElement.scrollHeight - document.documentElement.clientHeight);*/
 
-        console.log("handle scroll called")
+        this.updateTargetY() // update the target y position
+        //console.log("handle scroll called")
+
         // if not already moving, begin an animation
         if (!this.isMoving) {
-            console.log("not moving - animation called")
-            this.isMoving = true
+            //console.log("not moving - animation called")
             this.animationLoop()
         }
     }
 
     calcVelocity() {
         // function to calculate the velocity based on start, target and current position
-        this.velocity = 10 //this.velocity = (this.targetY - this.currentY) * 0.1
-        // console.log(this.velocity, this.startY, this.currentY, this.targetY)
+
+        const distanceToMove = this.targetY - this.currentY;
+        this.velocity = distanceToMove * 0.05; // Adjust the multiplier for desired effect
+
+        // should scale based on: 1px at start and end, faster in the middle
+        // so, 1st 50%: current pos / the startY, last 50%: end value / current pos?
+
+        /*
+        let totalDistance = (this.nonZero(this.targetY) - this.nonZero(this.startY))
+        let progress = this.nonZero(this.currentY) / totalDistance
+        let increment;
+
+        if (progress < 0.5) {
+            increment  = (Math.abs(this.currentY) > 1) && (Math.abs(this.targetY) > 1) ? this.currentY / this.targetY : 1
+        } else {
+            increment = (Math.abs(this.currentY) > 1) && (Math.abs(this.startY) > 1) ? this.currentY / this.startY : 1
+        }
+        this.velocity += increment
+         */
+
+        console.log(this.velocity)
+
+    }
+
+    nonZero(num) {
+        return Math.abs(num) === 0 ? 1 : num
     }
 
     shiftParallax() {
-        // function w/loop to move the parallax, given a modifier. Can accept changes to target.
-
-        // this.currentY += this.velocity
-        this.tempDistanceTest = this.getY(this.scrollParent) * 0.3
-        console.log(this.tempDistanceTest)
-        this.parallax.style.transform = `translateY(-${this.tempDistanceTest}px)`;
-        // console.log("shiftParallax");
+        // function w/loop to move the parallax, given a modifier.
+        const currentTransform = parseFloat(getComputedStyle(this.parallax).transform.split(',')[5]) || 0;
+        const newPosition = currentTransform + this.velocity;
+        this.parallax.style.transform = `translateY(${newPosition}px)`;
+        // console.log(this.parallax.style.transform)
     }
 
     animationLoop() {
         // loop that can be updated midway through to allow for mid-animation recalculations
 
         this.isMoving = true // reset at the end of the loop
-
         this.calcVelocity()
         this.shiftParallax()
+        this.updateCurrentY()
 
         // check if the target has been reached yet
-        if (this.targetY <= this.getY(this.parallax)) {
-            console.log("not moving")
-            this.isMoving = false
-            this.startY = this.getY(this.parallax) // update the start position, for the next animation
+        // console.log(this.targetY, this.currentY)
+        if (this.distanceLeft > 1) {
+            window.requestAnimationFrame(() => {this.animationLoop()});
         } else {
-            window.requestAnimationFrame((timestamp) => {
-                this.animationLoop()
-            });
+            this.isMoving = false
+            this.startY = this.currentY // update the start position, for the next animation
         }
     }
 
     // helpers:
-    getY(elem) {
-        let st =  elem.getBoundingClientRect().top
-        console.assert((st >= 0) || (st <= 0))
-        return st
+    updateCurrentY() {
+        this.currentY = this.parallax.getBoundingClientRect().top
+    }
+
+    updateTargetY() {
+        this.targetY = this.scrollParent.getBoundingClientRect().top * 0.25
+    }
+
+    updateDistance() {
+        this.distanceLeft = Math.round(Math.abs(this.currentY - this.targetY));
+    }
+
+    scrollDirection() {
+        if (this.currentY < this.startY) return "down"
+        else return "up"
+    }
+
+    easeInOut(t) {
+        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    }
+
+    logStats() {
+
+        console.log("Reminder; All prior values cleared")
+        console.log(`Current Position: ${this.currentY} 
+        \nTarget Position: ${this.targetY}
+        \nDistance Left: ${this.distanceLeft} 
+        \nVelocity: ${this.velocity}`);
     }
 }
+
 
 const parallax = new Parallax('#parallax-bg-image',
     'body')
 
 
-/*
-function moveParallax(startY = NaN, currentY = 1) {
-    let mainScrollY = (document.documentElement.scrollTop || document.body.scrollTop);
-    let directionalVelocity = 1 // assign velocity modifier (based on direction)
-    // perhaps find a way to catch the current transition right in the middle, and recalculate then?
-    // prevent rubber-banding and motion-sickness
-    //if ((targetY > lastScrollIncrement+2) || (targetY < lastScrollIncrement-2)) {
-        //lastScrollIncrement = targetY
-    //ToDo: throttling for high FPS monitors
-    function update(timestamp, id) {
-        let cond1 = mainScrollY; let cond2 = startY; let cond3 = currentY
-        console.log(cond1 + ' + ' + cond2 + ' < ' + cond3)
 
-        try {
-            queuedParallaxFrames.splice(queuedParallaxFrames.indexOf(id), 1)
-        } catch(e) {console.log(e)}
-
-
-        if (cond1 > cond3 + currentY) {
-            let id = window.requestAnimationFrame((timestamp) => {
-                update(timestamp, id)
-            });
-            queuedParallaxFrames.push(id);                              console.assert(id >= 0);
-        }
-    }
-    window.requestAnimationFrame(update);
-}
-*/
 
 /*
 function moveParallax() {
