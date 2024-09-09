@@ -6,7 +6,7 @@ let progress = 0
 let storedStartY = 0
 
 // debounce time between moves of the background parallax to avoid excessive overhead
-let timeout = 50
+let debounceTime = 500
 
 
 // top of main box
@@ -18,22 +18,37 @@ let timeout = 50
 
 
 class Parallax {
-    constructor(elem, scrollParent) {
+    constructor(elemSelector, scrollParentSelector) {
 
-        this.parallax = elem;
-        this.scrollParent = scrollParent;
+        this.parallax = document.querySelector(elemSelector) ;
+        this.scrollParent = document.querySelector(scrollParentSelector);
 
-        this.startY = this.getY(elem) + 1
+        this.startY = this.getY(this.parallax) + 1
         this.currentY = this.startY + 1
-        this.targetY = this.getY(scrollParent) //document.documentElement.getBoundingClientRect().top + 1
+        this.targetY = this.getY(this.scrollParent) //document.documentElement.getBoundingClientRect().top + 1
 
         this.velocity = 1
         this.isMoving = false // flag to check if transition is running
+        this.tempDistanceTest = 0
 
         // Bind animationLoop to ensure `this` context is correct
         // this.animationLoop = this.animationLoop.bind(this);
 
-        document.addEventListener("scroll", this.setTarget.bind(this))
+        let soleScroll = this.handleScrollEvent.bind(this)
+        document.addEventListener("scroll", soleScroll(soleScroll)); // passes this bound function so the listener can be
+        // removed and added back at will.
+    }
+
+    handleScrollEvent(soleScroll) {
+        // console.log("scroll event")
+        document.addEventListener("scroll", soleScroll)
+
+        this.setTarget()
+
+        // replace event listener after debounceTime. Reduces unneeded repositioning (by a factor of 10!!!)
+        setTimeout(() => {
+            document.addEventListener("scroll", soleScroll)
+        }, debounceTime)
     }
 
     checkTarget() {
@@ -41,11 +56,16 @@ class Parallax {
 
     }
 
+    // get the target scroll position
     setTarget() {
-        this.targetY = (document.body.scrollTop + document.documentElement.scrollTop) /
-            (document.documentElement.scrollHeight - document.documentElement.clientHeight);
+        // update the target y position
+        this.targetY = window.scrollY /*(document.body.scrollTop + document.documentElement.scrollTop) /
+            (document.documentElement.scrollHeight - document.documentElement.clientHeight);*/
 
+        console.log("handle scroll called")
+        // if not already moving, begin an animation
         if (!this.isMoving) {
+            console.log("not moving - animation called")
             this.isMoving = true
             this.animationLoop()
         }
@@ -54,56 +74,49 @@ class Parallax {
     calcVelocity() {
         // function to calculate the velocity based on start, target and current position
         this.velocity = 10 //this.velocity = (this.targetY - this.currentY) * 0.1
-        console.log(this.velocity, this.startY, this.currentY, this.targetY)
+        // console.log(this.velocity, this.startY, this.currentY, this.targetY)
     }
 
-    moveFrame() {
+    shiftParallax() {
         // function w/loop to move the parallax, given a modifier. Can accept changes to target.
 
-        this.isMoving = true // reset at the end of the loop
-        this.parallax.style.transform = `translateY(-${this.currentY}px)`;
+        // this.currentY += this.velocity
+        this.tempDistanceTest = this.getY(this.scrollParent) * 0.3
+        console.log(this.tempDistanceTest)
+        this.parallax.style.transform = `translateY(-${this.tempDistanceTest}px)`;
+        // console.log("shiftParallax");
     }
 
     animationLoop() {
         // loop that can be updated midway through to allow for mid-animation recalculations
 
-        console.log("animationLoop")
-        this.calcVelocity()
-        this.moveFrame()
+        this.isMoving = true // reset at the end of the loop
 
-        window.requestAnimationFrame((timestamp) => {
-            this.animationLoop()
-        });
+        this.calcVelocity()
+        this.shiftParallax()
 
         // check if the target has been reached yet
-        if (this.targetY < this.getY(this.parallax)) {
+        if (this.targetY <= this.getY(this.parallax)) {
+            console.log("not moving")
             this.isMoving = false
             this.startY = this.getY(this.parallax) // update the start position, for the next animation
+        } else {
+            window.requestAnimationFrame((timestamp) => {
+                this.animationLoop()
+            });
         }
     }
 
     // helpers:
     getY(elem) {
-        return elem.getBoundingClientRect().y;
+        let st =  elem.getBoundingClientRect().top
+        console.assert((st >= 0) || (st <= 0))
+        return st
     }
-
-    /*
-    eventDebounce() {
-        // console.log("scroll event")
-        document.removeEventListener("scroll", scrollEvent)
-
-        // replace event listener after timeout. Reduces unneeded repositioning (by a factor of 10!!!)
-        setTimeout(() => {
-            document.addEventListener("scroll", scrollEvent)
-        }, timeout)
-    }
-    */
 }
 
-
-
-const parallax = new Parallax(document.querySelector('#parallax-bg-image'),
-    document.querySelector('main'))
+const parallax = new Parallax('#parallax-bg-image',
+    'body')
 
 
 /*
