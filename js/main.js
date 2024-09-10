@@ -16,101 +16,63 @@ class Parallax {
         this.scrollParent = document.querySelector(scrollParentSelector);
 
         this.updateCurrentY()
-        this.startY = this.currentY
-        this.distanceLeft = 1
         this.updateTargetY() // this will set "this.targetY" //document.documentElement.getBoundingClientRect().top + 1
+        this.lastTargetY = this.targetY
 
-        this.velocity = 1
-        this.isMoving = false // flag to check if transition is running
-        this.throttling = false
-
-        // Bind scroll event with debouncing
-        this.handleScroll = debounce(this.onScroll.bind(this), 10);
-        window.addEventListener('scroll', this.handleScroll);
+        this.toggle = false
 
         // Initial calculations
         this.updateCurrentY();
         this.updateTargetY();
+
+        let lockedParallaxScroll = this.onScroll.bind(this)
+
+        document.addEventListener('scroll', ()=> {
+            lockedParallaxScroll()
+        });
     }
+
+    // the reason why its laggy may be because the events are firing so often that
+    // it jumps multiple pixels in one frame. #NO so, use the frame queue thingy and #NO
+    // nevermind, I need variable speed, so just reduce the total number of
+    // scroll events registered (for the moment)
 
     onScroll() {
-        this.updateCurrentY();
-        this.updateTargetY();
 
-        if (!this.isMoving) {
-            this.isMoving = true;
-            this.animationLoop();
+        this.toggle = !this.toggle
+
+        if (true) {
+
+            this.updateCurrentY();
+            this.updateTargetY();
+
+            // console.log(this.targetY, this.lastTargetY);
+            let pix
+
+            let currentTransform = parseFloat(getComputedStyle(this.parallax).transform.split(',')[5]) || 0;
+
+            if (this.scrollDirection() === 'down'){
+                pix = currentTransform - 2;
+            }else if (this.scrollDirection() === 'up'){
+                pix = currentTransform + 2;
+            }
+
+            window.requestAnimationFrame(() => {this.shiftParallax(pix)});
+
+            // this.animationLoop();
         }
-    }
-
-
-    // get the target scroll position
-    setTarget() {
-
-        this.updateTargetY() // update the target y position
-        //console.log("handle scroll called")
-
-        // if not already moving, begin an animation
-        if (!this.isMoving) {
-            //console.log("not moving - animation called")
-            this.animationLoop()
-        }
-    }
-
-    calcVelocity() {
-        // function to calculate the velocity based on start, target and current position
-
-        const distanceToMove = this.targetY - this.currentY;
-        this.velocity = distanceToMove * 0.05; // Adjust the multiplier for desired effect
-
-        // should scale based on: 1px at start and end, faster in the middle
-        // so, 1st 50%: current pos / the startY, last 50%: end value / current pos?
-
-        /*
-        let totalDistance = (this.nonZero(this.targetY) - this.nonZero(this.startY))
-        let progress = this.nonZero(this.currentY) / totalDistance
-        let increment;
-
-        if (progress < 0.5) {
-            increment  = (Math.abs(this.currentY) > 1) && (Math.abs(this.targetY) > 1) ? this.currentY / this.targetY : 1
-        } else {
-            increment = (Math.abs(this.currentY) > 1) && (Math.abs(this.startY) > 1) ? this.currentY / this.startY : 1
-        }
-        this.velocity += increment
-         */
-
-        console.log(this.velocity)
-
     }
 
     nonZero(num) {
         return Math.abs(num) === 0 ? 1 : num
     }
 
-    shiftParallax() {
+    shiftParallax(pix) {
         // function w/loop to move the parallax, given a modifier.
-        const currentTransform = parseFloat(getComputedStyle(this.parallax).transform.split(',')[5]) || 0;
-        const newPosition = currentTransform + this.velocity;
-        this.parallax.style.transform = `translateY(${newPosition}px)`;
+
+        this.parallax.style.transform = `translateY(${pix}px)`;
+        // console.log(pix);
         // console.log(this.parallax.style.transform)
-    }
-
-    animationLoop() {
-        // loop that can be updated midway through to allow for mid-animation recalculations
-
-        this.isMoving = true // reset at the end of the loop
-        this.calcVelocity()
-        this.shiftParallax()
-        this.updateCurrentY()
-
-        // check if the target has been reached yet
-        // console.log(this.targetY, this.currentY)
-        if (this.distanceLeft > 1) {
-            window.requestAnimationFrame(() => {this.animationLoop()});
-        } else {
-            this.isMoving = false
-            this.startY = this.currentY // update the start position, for the next animation
-        }
     }
 
     // helpers:
@@ -119,29 +81,16 @@ class Parallax {
     }
 
     updateTargetY() {
-        this.targetY = this.scrollParent.getBoundingClientRect().top * 0.25
-    }
-
-    updateDistance() {
-        this.distanceLeft = Math.round(Math.abs(this.currentY - this.targetY));
+        this.targetY = this.scrollParent.getBoundingClientRect().top
     }
 
     scrollDirection() {
-        if (this.currentY < this.startY) return "down"
-        else return "up"
-    }
+        let direction
+        if (this.lastTargetY > this.targetY) direction = "down"
+        else direction = "up"
+        this.lastTargetY = this.targetY;
+        return direction
 
-    easeInOut(t) {
-        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-    }
-
-    logStats() {
-
-        console.log("Reminder; All prior values cleared")
-        console.log(`Current Position: ${this.currentY} 
-        \nTarget Position: ${this.targetY}
-        \nDistance Left: ${this.distanceLeft} 
-        \nVelocity: ${this.velocity}`);
     }
 }
 

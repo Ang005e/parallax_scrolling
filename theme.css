@@ -63,10 +63,10 @@ header, footer {
 #parallax-bg-image {
     /* transition: background-position 200ms cubic-bezier(0.235, 0.615, 0.185, 0.995); */
     transform: translateZ(0);
-    /* transition: transform 0.1s cubic-bezier(0.25, 0.1, 0.25, 1); */
+    /* transition: transformY linear 50ms; */
 
     /**** **** ***** **** ***** **** ***** *****/
-    will-change: transform;
+    will-change: transformY;
     /**** **** ***** **** ***** **** ***** *****/
 
     position: absolute;
