@@ -1,102 +1,103 @@
+let moveCount = 0;
+let eventCount = 0;
+let translatePix = 0;
 
+function throttle(arguedFunc, delay) {
+    let throttleOn = false;
 
-// debounce time between moves of the background parallax to avoid excessive overhead
-function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
+    return (...args) => {
+        if (!throttleOn) {
+            throttleOn = true;
+            arguedFunc(...args);
+            throttleOn = setTimeout(() => {
+                throttleOn = false;
+            }, delay)
+        }
     };
 }
 
-class Parallax {
-    constructor(elemSelector, scrollParentSelector) {
 
-        this.parallax = document.querySelector(elemSelector) ;
+
+class Parallax {
+
+    constructor(elemSelector, scrollParentSelector, scrollSpeedModifier, offsetY/*, xModifier*/) {
+        this.parallax = document.querySelector(elemSelector);
         this.scrollParent = document.querySelector(scrollParentSelector);
 
-        this.updateCurrentY()
-        this.updateTargetY() // this will set "this.targetY" //document.documentElement.getBoundingClientRect().top + 1
-        this.lastTargetY = this.targetY
+        this.baseTravel = scrollSpeedModifier; // Adjust base travel speed to control parallax effect
+        this.currentTransform = offsetY;
+        // this.xModifier = xModifier;
+        // this.xDistance = 0;
 
-        this.toggle = false
-
-        // Initial calculations
         this.updateCurrentY();
         this.updateTargetY();
 
-        let lockedParallaxScroll = this.onScroll.bind(this)
+        this.lastScrollTop = window.scrollY; // Track last scroll position
+        this.throttledFunc = throttle(this.evaluateMove.bind(this), 10);
 
-        document.addEventListener('scroll', ()=> {
-            lockedParallaxScroll()
+        window.addEventListener('scroll', this.throttledFunc);
+        window.addEventListener('wheel', (e)=>{
+            console.log(e.deltaY)
         });
     }
 
-    // the reason why its laggy may be because the events are firing so often that
-    // it jumps multiple pixels in one frame. #NO so, use the frame queue thingy and #NO
-    // nevermind, I need variable speed, so just reduce the total number of
-    // scroll events registered (for the moment)
+    evaluateMove() {
+        const currentScrollTop = window.scrollY;
+        const distanceScrolled = currentScrollTop - this.lastScrollTop;
+        this.lastScrollTop = currentScrollTop;
 
-    onScroll() {
+        this.onScroll(distanceScrolled);
+    }
 
-        this.toggle = !this.toggle
+    onScroll(distanceScrolled) {
+        const direction = distanceScrolled > 0 ? 'down' : 'up';
+        const distance = Math.abs(distanceScrolled) * this.baseTravel;
 
-        if (true) {
-
-            this.updateCurrentY();
-            this.updateTargetY();
-
-            // console.log(this.targetY, this.lastTargetY);
-            let pix
-
-            let currentTransform = parseFloat(getComputedStyle(this.parallax).transform.split(',')[5]) || 0;
-
-            if (this.scrollDirection() === 'down'){
-                pix = currentTransform - 2;
-            }else if (this.scrollDirection() === 'up'){
-                pix = currentTransform + 2;
-            }
-
-            window.requestAnimationFrame(() => {this.shiftParallax(pix)});
-
-            // this.animationLoop();
+        if (direction === 'down') {
+            this.currentTransform -= distance;
+            // this.xDistance -= this.baseTravel * this.xModifier;
+            // console.log(this.xDistance)
+        } else {
+            this.currentTransform += distance;
+            // this.xDistance += this.baseTravel * this.xModifier;
         }
+
+        window.requestAnimationFrame(() => {
+            this.shiftParallax(this.currentTransform/*, this.xDistance*/);
+        });
     }
 
-    nonZero(num) {
-        return Math.abs(num) === 0 ? 1 : num
+    shiftParallax(pixY, pixX) {
+        this.parallax.style.transform = `translateY(${pixY}px)` // translateX(${pixX}px)`;
     }
 
-    shiftParallax(pix) {
-        // function w/loop to move the parallax, given a modifier.
-
-        this.parallax.style.transform = `translateY(${pix}px)`;
-        // console.log(pix);
-        // console.log(this.parallax.style.transform)
-    }
-
-    // helpers:
     updateCurrentY() {
-        this.currentY = this.parallax.getBoundingClientRect().top
+        this.currentY = this.parallax.getBoundingClientRect().top + window.scrollY;
     }
 
     updateTargetY() {
-        this.targetY = this.scrollParent.getBoundingClientRect().top
-    }
-
-    scrollDirection() {
-        let direction
-        if (this.lastTargetY > this.targetY) direction = "down"
-        else direction = "up"
-        this.lastTargetY = this.targetY;
-        return direction
-
+        this.targetY = this.scrollParent.getBoundingClientRect().top + window.scrollY;
     }
 }
 
 
-const parallax = new Parallax('#parallax-bg-image',
-    'body')
+
+/*
+let wheel =0
+document.addEventListener('wheel', (event) => {console.log(wheel++)})
+
+
+setInterval(()=>{
+    console.log(`${parallax.scrolls} | ${parallax.wheelScrolls} \n${translatePix}`);
+}, 10)
+*/
+
+const parallax = new Parallax('#primary-parallax-bg-image',
+    'body', 0.5, -800, -4)
+const secondaryParallax = new Parallax('#secondary-parallax-bg-image',
+    'body', 0.32, -400)
+const tertiaryParallax = new Parallax('#tertiary-parallax-bg-image',
+    'body', 0.18, 0, 5)
 
 
 
@@ -114,7 +115,7 @@ function moveParallax() {
         // perhaps find a way to catch the current transition right in the middle, and recalculate then?
 
         lastScrollIncrement = scrollAmount
-        const parallax = document.querySelector('#parallax-bg-image');
+        const parallax = document.querySelector('#primary-parallax-bg-image');
 
         // According to my research, transform: translate seems to be the most efficient and smoothest
         // way to animate movement in vanilla JS.
@@ -125,115 +126,4 @@ function moveParallax() {
     }
 }
 
-
-
-
-
-Your code seems to have the right idea but contains several issues that might prevent it from working effectively. Let’s address the problems and improve your implementation step by step.
-
-Issues Identified
-Event Binding and Throttling: You're adding and removing scroll event listeners in the onEvent method, which can lead to unexpected behavior. Instead, use throttling or debouncing to control the rate of scroll events.
-
-Animation Logic: The velocity calculation and the animationLoop are not correctly handling the distance left or updating the position of the parallax element effectively.
-
-Distance Calculation: Your distanceLeft is calculated but not used effectively to update the animation.
-
-Transform Update: translateY(${this.velocity}px) isn't the right way to use the velocity in your case. Instead, you should be using it to adjust the position based on the current scroll state.
-
-Refactored Code
-Here’s a revised version of your class with improvements:
-
-javascript
-Copy code
-// Debounce function to limit the rate at which a function is invoked
-function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-}
-
-class Parallax {
-    constructor(elemSelector, scrollParentSelector) {
-        this.parallax = document.querySelector(elemSelector);
-        this.scrollParent = document.querySelector(scrollParentSelector);
-
-        this.velocity = 0;
-        this.isMoving = false;
-
-        // Bind scroll event with debouncing
-        this.handleScroll = debounce(this.onScroll.bind(this), 10);
-        window.addEventListener('scroll', this.handleScroll);
-
-        // Initial calculations
-        this.updateCurrentY();
-        this.updateTargetY();
-    }
-
-    onScroll() {
-        this.updateCurrentY();
-        this.updateTargetY();
-
-        if (!this.isMoving) {
-            this.isMoving = true;
-            this.animationLoop();
-        }
-    }
-
-    animationLoop() {
-        // Update distance and velocity
-        this.updateDistance();
-        this.calcVelocity();
-
-        // Apply the velocity to the parallax element
-        this.shiftParallax();
-
-        // If still moving, continue the animation
-        if (this.distanceLeft > 1) {
-            window.requestAnimationFrame(() => this.animationLoop());
-        } else {
-            this.isMoving = false;
-        }
-    }
-
-    calcVelocity() {
-        const distanceToMove = this.targetY - this.currentY;
-        this.velocity = distanceToMove * 0.1; // Adjust the multiplier for desired effect
-    }
-
-    shiftParallax() {
-        const currentTransform = parseFloat(getComputedStyle(this.parallax).transform.split(',')[5]) || 0;
-        const newPosition = currentTransform + this.velocity;
-        this.parallax.style.transform = `translateY(${newPosition}px)`;
-    }
-
-    updateCurrentY() {
-        this.currentY = window.scrollY || window.pageYOffset;
-    }
-
-    updateTargetY() {
-        const rect = this.scrollParent.getBoundingClientRect();
-        this.targetY = rect.top * 0.25 + window.scrollY;
-    }
-
-    updateDistance() {
-        this.distanceLeft = Math.abs(this.currentY - this.targetY);
-    }
-}
-
-// Initialize the Parallax effect
-const parallax = new Parallax('#parallax-bg-image', 'body');
-Explanation of Changes
-Debounce: Added a debounce function to limit the rate at which the onScroll method is called. This reduces the number of times the scroll event fires, improving performance.
-
-Animation Loop: Simplified the animation loop. It now continuously updates the parallax effect until the distance left is negligible.
-
-Velocity Calculation: Simplified the calculation of velocity to move the parallax element. You can adjust the multiplier (0.1 in this case) to control the intensity of the effect.
-
-Transform Application: Used the transform property directly to adjust the position based on the calculated velocity.
-
-Update Methods: Improved the updateTargetY and updateCurrentY methods to get consistent values for calculations.
-
-This should give you a smoother and more responsive parallax effect. Adjust the parameters (like the velocity multiplier) to fine-tune the animation to your liking.
  */
