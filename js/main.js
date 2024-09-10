@@ -1,6 +1,3 @@
-let moveCount = 0;
-let eventCount = 0;
-let translatePix = 0;
 
 function throttle(arguedFunc, delay) {
     let throttleOn = false;
