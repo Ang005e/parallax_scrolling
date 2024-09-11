@@ -1,4 +1,7 @@
 
+
+
+
 function throttle(arguedFunc, delay) {
     let throttleOn = false;
 
@@ -6,14 +9,13 @@ function throttle(arguedFunc, delay) {
         if (!throttleOn) {
             throttleOn = true;
             arguedFunc(...args);
+            console.log('called');
             throttleOn = setTimeout(() => {
                 throttleOn = false;
             }, delay)
         }
     };
 }
-
-
 
 class Parallax {
 
@@ -30,12 +32,11 @@ class Parallax {
         this.updateTargetY();
 
         this.lastScrollTop = window.scrollY; // Track last scroll position
-        this.throttledFunc = throttle(this.evaluateMove.bind(this), 10);
+        this.throttledFunc = throttle(this.evaluateMove.bind(this), 5);
 
-        window.addEventListener('scroll', this.throttledFunc);
-        window.addEventListener('wheel', (e)=>{
-            console.log(e.deltaY)
-        });
+        Callbacks.MasterScrollEvent(this.throttledFunc);
+
+        //window.addEventListener('wheel', this.throttledFunc);
     }
 
     evaluateMove() {
@@ -90,13 +91,13 @@ setInterval(()=>{
 */
 
 const parallax = new Parallax('#primary-parallax-bg-image',
-    'body', 0.5, -800)
+    'body', -0.5, -1100)
 const secondaryParallax = new Parallax('#secondary-parallax-bg-image',
-    'body', 0.32, -400)
+    'body', -0.32, -700)
 const tertiaryParallax = new Parallax('#tertiary-parallax-bg-image',
-    'body', 0.18, 0)
+    'body', -0.18, -300)
 const bottomParallax = new Parallax('#bottom-parallax-bg-image',
-    'body', 0.1, 0)
+    'body', -0.055, 0)
 
 
 

@@ -89,12 +89,13 @@ header, footer {
     transform: translateY(0);
 }
 #bottom-parallax-bg-image {
+    height: 108vh;
+    top: -8vh;
     opacity: 1;
     z-index: -4;
     transform: translateY(0);
     background: url("pics/bow_bridge_pic1.png") no-repeat center center;
     background-size: cover;
-    height: 110vh;
 }
 #parallax-filter {
     position: fixed;
