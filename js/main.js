@@ -96,7 +96,7 @@ const secondaryParallax = new Parallax('#secondary-parallax-bg-image',
 const tertiaryParallax = new Parallax('#tertiary-parallax-bg-image',
     'body', 0.18, 0)
 const bottomParallax = new Parallax('#bottom-parallax-bg-image',
-    'body', 0.1, 0)
+    'body', 0.05, 0)
 
 
 

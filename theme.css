@@ -6,7 +6,6 @@ Attributions:
 Photo by <a href="https://unsplash.com/@heftiba?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Toa Heftiba</a> on <a href="https://unsplash.com/photos/bonfire-DUXACn8tgp4?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a>
 */
 
-
 * {
     box-sizing: border-box;
     margin: 0;
@@ -54,6 +53,7 @@ header, footer {
 }
 .edge-blur-overlay {
     position: absolute;
+    z-index: -2;
     top: 0;
     left: 0;
     width: 100%;
@@ -72,7 +72,7 @@ header, footer {
     /**** **** ***** **** ***** **** ***** *****/
 
     position: absolute;
-    z-index: -1;
+    z-index: -2;
     width: 100vw;
     height: 400vh;
     background: url("pics/sparks_bg.png") no-repeat center center;
@@ -80,7 +80,7 @@ header, footer {
 }
 #secondary-parallax-bg-image {
     opacity: 0.25;
-    z-index: -2;
+    z-index: -1;
     transform: translateY(-400px);
 }
 #tertiary-parallax-bg-image {
@@ -91,19 +91,22 @@ header, footer {
 #bottom-parallax-bg-image {
     opacity: 1;
     z-index: -4;
+    filter: blur(1px);
     transform: translateY(0);
     background: url("pics/bow_bridge_pic1.png") no-repeat center center;
     background-size: cover;
-    height: 110vh;
+    height: 102vh;
 }
 #parallax-filter {
     position: fixed;
-    z-index: 0;
+    /* z-index: -1;
+     */
     width: 100vw;
     height: 100vh;
     top: 0;
     left: 0;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(3px);
+
 }
 #bg-wrapper {
     position: fixed;
