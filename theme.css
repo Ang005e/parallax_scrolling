@@ -61,11 +61,11 @@ header, footer {
     backdrop-filter: blur(4px);
 }
 
-#primary-parallax-bg-image, #secondary-parallax-bg-image, #tertiary-parallax-bg-image {
+#primary-parallax-bg-image, #secondary-parallax-bg-image, #tertiary-parallax-bg-image, #bottom-parallax-bg-image {
     /* transition: background-position 200ms cubic-bezier(0.235, 0.615, 0.185, 0.995); */
     transform: translateZ(0) translateY(-800px);
-    transition: transformY linear 10ms;
-    opacity: 0.5;
+
+    opacity: 0.25;
 
     /**** **** ***** **** ***** **** ***** *****/
     will-change: transformY;
@@ -79,16 +79,32 @@ header, footer {
     background-size: cover;
 }
 #secondary-parallax-bg-image {
-    opacity: 0.5;
+    opacity: 0.25;
     z-index: -2;
     transform: translateY(-400px);
 }
 #tertiary-parallax-bg-image {
-    opacity: 1;
+    opacity: 0.25;
     z-index: -3;
     transform: translateY(0);
 }
-
+#bottom-parallax-bg-image {
+    opacity: 1;
+    z-index: -4;
+    transform: translateY(0);
+    background: url("pics/bow_bridge_pic1.png") no-repeat center center;
+    background-size: cover;
+    height: 110vh;
+}
+#parallax-filter {
+    position: fixed;
+    z-index: 0;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    backdrop-filter: blur(5px);
+}
 #bg-wrapper {
     position: fixed;
     z-index: -1;
@@ -98,15 +114,7 @@ header, footer {
     left: 0;
     scrollbar-width: none;
 }
-#parallax-filter {
-    position: fixed;
-    z-index: 0;
-    width: 100vw;
-    height: 100vh;
-    top: 0;
-    left: 0;
-    backdrop-filter: blur(7px);
-}
+
 
 text {
     font-family: sans-serif;

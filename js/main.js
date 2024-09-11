@@ -90,11 +90,13 @@ setInterval(()=>{
 */
 
 const parallax = new Parallax('#primary-parallax-bg-image',
-    'body', 0.5, -800, -4)
+    'body', 0.5, -800)
 const secondaryParallax = new Parallax('#secondary-parallax-bg-image',
     'body', 0.32, -400)
 const tertiaryParallax = new Parallax('#tertiary-parallax-bg-image',
-    'body', 0.18, 0, 5)
+    'body', 0.18, 0)
+const bottomParallax = new Parallax('#bottom-parallax-bg-image',
+    'body', 0.1, 0)
 
 
 
