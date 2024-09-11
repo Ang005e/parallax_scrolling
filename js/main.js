@@ -1,40 +1,16 @@
-
-
-
-
-function throttle(arguedFunc, delay) {
-    let throttleOn = false;
-
-    return (...args) => {
-        if (!throttleOn) {
-            throttleOn = true;
-            arguedFunc(...args);
-            console.log('called');
-            throttleOn = setTimeout(() => {
-                throttleOn = false;
-            }, delay)
-        }
-    };
-}
-
 class Parallax {
 
-    constructor(elemSelector, scrollParentSelector, scrollSpeedModifier, offsetY/*, xModifier*/) {
+    constructor(elemSelector, scrollSpeedModifier, offsetY/*, xModifier*/) {
         this.parallax = document.querySelector(elemSelector);
-        this.scrollParent = document.querySelector(scrollParentSelector);
 
         this.baseTravel = scrollSpeedModifier; // Adjust base travel speed to control parallax effect
-        this.currentTransform = offsetY;
-        // this.xModifier = xModifier;
-        // this.xDistance = 0;
-
-        this.updateCurrentY();
-        this.updateTargetY();
-
+        this.currentTransform = offsetY; // set the initial transform to the argued Y offset
         this.lastScrollTop = window.scrollY; // Track last scroll position
-        this.throttledFunc = throttle(this.evaluateMove.bind(this), 5);
 
+        this.throttledFunc = throttle(this.evaluateMove.bind(this), 5);
         Callbacks.MasterScrollEvent(this.throttledFunc);
+
+        this.shiftParallax(offsetY); // set the current position to the passed offset
 
         //window.addEventListener('wheel', this.throttledFunc);
     }
@@ -53,77 +29,67 @@ class Parallax {
 
         if (direction === 'down') {
             this.currentTransform -= distance;
-            // this.xDistance -= this.baseTravel * this.xModifier;
-            // console.log(this.xDistance)
         } else {
             this.currentTransform += distance;
-            // this.xDistance += this.baseTravel * this.xModifier;
         }
 
         window.requestAnimationFrame(() => {
-            this.shiftParallax(this.currentTransform/*, this.xDistance*/);
+            this.shiftParallax(this.currentTransform);
         });
     }
 
-    shiftParallax(pixY, pixX) {
+    shiftParallax(pixY) {
         this.parallax.style.transform = `translateY(${pixY}px)` // translateX(${pixX}px)`;
     }
-
-    updateCurrentY() {
-        this.currentY = this.parallax.getBoundingClientRect().top + window.scrollY;
-    }
-
-    updateTargetY() {
-        this.targetY = this.scrollParent.getBoundingClientRect().top + window.scrollY;
-    }
 }
 
+function throttle(arguedFunc, delay) {
+    let throttleOn = false;
 
+    return (...args) => {
+        if (!throttleOn) {
+            throttleOn = true;
+            arguedFunc(...args);
+            console.log('called');
+            throttleOn = setTimeout(() => {
+                throttleOn = false;
+            }, delay)
+        }
+    };
+}
+
+const parallax = new Parallax('#primary-parallax-bg-image', -0.5, -1100)
+const secondaryParallax = new Parallax('#secondary-parallax-bg-image', -0.32, -700)
+const tertiaryParallax = new Parallax('#tertiary-parallax-bg-image', -0.18, -300)
+const bottomParallax = new Parallax('#bottom-parallax-bg-image', -0.06, 0)
+
+
+
+function scrollMeDaddy() {
+    document.querySelector('#dummy-elem').scrollIntoView(false)
+    console.log('scrolled')
+}
+document.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {scrollMeDaddy()}
+})
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(()=>{
+        document.querySelector('#loading-overlay').style.transform = 'translateY(-100vh)'
+        document.querySelector('#loading-overlay').style.opacity = '0.85'
+    }, 100)
+    setTimeout(()=>{
+        document.querySelector('#loading-overlay').style.opacity = '0.5';
+    }, 200)
+
+})
 
 /*
-let wheel =0
-document.addEventListener('wheel', (event) => {console.log(wheel++)})
-
-
-setInterval(()=>{
-    console.log(`${parallax.scrolls} | ${parallax.wheelScrolls} \n${translatePix}`);
-}, 10)
+const scrollToTop = () => {
+    const c = document.documentElement.scrollTop || document.body.scrollTop;
+    if (c > 0) {
+        window.requestAnimationFrame(scrollToTop);
+        window.scrollTo(0, c - c / 8);
+    }
+};
+scrollToTop();
 */
-
-const parallax = new Parallax('#primary-parallax-bg-image',
-    'body', -0.5, -1100)
-const secondaryParallax = new Parallax('#secondary-parallax-bg-image',
-    'body', -0.32, -700)
-const tertiaryParallax = new Parallax('#tertiary-parallax-bg-image',
-    'body', -0.18, -300)
-const bottomParallax = new Parallax('#bottom-parallax-bg-image',
-    'body', -0.055, 0)
-
-
-
-
-/*
-function moveParallax() {
-
-    let scrollPercent = (document.body.scrollTop + document.documentElement.scrollTop) /
-        (document.documentElement.scrollHeight - document.documentElement.clientHeight);
-    let scrollAmount = scrollPercent * 600;
-
-    // prevent rubber-banding and motion-sickness
-    if ((scrollAmount > lastScrollIncrement+2) || (scrollAmount < lastScrollIncrement-2)) {
-
-        // perhaps find a way to catch the current transition right in the middle, and recalculate then?
-
-        lastScrollIncrement = scrollAmount
-        const parallax = document.querySelector('#primary-parallax-bg-image');
-
-        // According to my research, transform: translate seems to be the most efficient and smoothest
-        // way to animate movement in vanilla JS.
-        parallax.style.transform = `translateY(-${scrollAmount}px)`;
-
-        // check that the final position has not yet been reached:
-
-    }
-}
-
- */
