@@ -62,7 +62,7 @@ const parallax = new Parallax('#primary-parallax-bg-image', -0.5, -1100)
 const secondaryParallax = new Parallax('#secondary-parallax-bg-image', -0.32, -700)
 const tertiaryParallax = new Parallax('#tertiary-parallax-bg-image', -0.18, -300)
 const bottomParallax = new Parallax('#bottom-parallax-bg-image', -0.06, 0)
-
+const wiperTransitionParallax = new Parallax('.wiper-transition', 0.75, 700)
 
 
 function scrollMeDaddy() {

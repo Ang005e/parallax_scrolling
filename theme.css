@@ -13,17 +13,13 @@ Photo by <a href="https://unsplash.com/@heftiba?utm_content=creditCopyText&utm_m
     width: 100vw;
     height: 100vh;
     transition: opacity 2.5s ease-in-out, transform 2s ease-in-out;
+
     h1 {
         color: white;
         text-align: center;
         transform: translateY(40vh);
     }
 }
-#dummy-elem {
-    position: absolute;
-    top: 200vh;
-}
-
 * {
     box-sizing: border-box;
     margin: 0;
@@ -34,7 +30,6 @@ Photo by <a href="https://unsplash.com/@heftiba?utm_content=creditCopyText&utm_m
 }
 html {
     scroll-behavior: smooth;
-
 }
 
 body {
@@ -50,6 +45,34 @@ body {
     /**** **** **** **** **** **** **** **** **** **** **** **** ****/
 }
 
+text {
+    font-family: sans-serif;
+}
+main {
+    display: flex;
+    z-index: 1;
+    flex-direction: column;
+    height: 500vh;
+    justify-content: space-evenly;
+    align-items: stretch;
+    h1 {
+        font-size: 6vmax;
+    }
+    h2 {
+        font-size: 3.5vmax;
+    }
+    h3 {
+        font-size: 2vmax;
+    }
+    h4 {
+        font-size: 1.5vmax;
+    }
+}
+
+#dummy-elem {
+    position: absolute;
+    top: 200vh;
+}
 
 header {
     top: 0;
@@ -136,30 +159,6 @@ header, footer {
 }
 
 
-text {
-    font-family: sans-serif;
-}
-main {
-    display: flex;
-    z-index: 1;
-    flex-direction: column;
-    height: 480vh;
-    justify-content: space-evenly;
-    align-items: stretch;
-    h1 {
-        font-size: 6vmax;
-    }
-    h2 {
-        font-size: 3.5vmax;
-    }
-    h3 {
-        font-size: 2vmax;
-    }
-    h4 {
-        font-size: 1.5vmax;
-    }
-}
-
 .container {
     overflow: hidden;
     display: flex;
@@ -187,18 +186,27 @@ main {
 
 
 /********* IMAGE SECTION *********/
+
+.wiper-transition {
+    position: relative;
+    width: 100vw;
+    height: 85vh;
+    background: black;
+}
+
 #middle-wrapper {
     width: 100vw;
     height: 300vh;
 
     .image-container {
         width: 100vw;
-        height: 100vh;
+        height: 120vh;
     }
 
     > :first-of-type {
-        background: url("pics/firefront_approaches_firefighters.png");
+        background: url("pics/darker_firefront.PNG"); /* url("pics/firefront_approaches_firefighters.png"); */
         background-size: cover;
+        z-index: 1;
     }
 
     > :nth-of-type(2) {
