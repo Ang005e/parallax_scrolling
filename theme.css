@@ -24,7 +24,7 @@ Photo by <a href="https://unsplash.com/@heftiba?utm_content=creditCopyText&utm_m
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    scrollbar-width: none;
+    scrollbar-width: thin;
     scrollbar-color: black lightslategrey;
     scroll-behavior: smooth !important;
 }
@@ -69,11 +69,6 @@ main {
     }
 }
 
-#dummy-elem {
-    position: absolute;
-    top: 200vh;
-}
-
 header {
     top: 0;
     rotate: 180deg;
@@ -100,6 +95,112 @@ header, footer {
     height: 100%;
     backdrop-filter: blur(4px);
 }
+
+
+.container {
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+}
+
+#upper-section {
+    width: 100vw;
+    height: 100vh;
+    /* background: url("pics/smoke_cloud.png");
+    background-size: cover; */
+    color: white;
+
+    .opening-message{
+        height: 30vh;
+    }
+    .user-warning{
+        height: 10vh;
+        margin-top: auto; /* margin-top: auto sits this item at the very bottom of the flexbox container */
+    }
+
+}
+
+
+/********* IMAGE SECTION *********/
+
+#middle-section {
+    overflow: visible;
+    z-index: 1;
+    display: flex;
+    height: fit-content;
+    flex-flow: column;
+    align-items: center;
+    justify-content: stretch;
+
+    .wiper-transition, .wiper-transition-bottom {
+        width: 100vw;
+        height: 10vh;
+        background: black;
+    }
+
+    .wiper-transition {
+        position: absolute;
+    }
+
+    .backing-parallax {
+        position: absolute;
+        z-index: -2;
+        height: 100vh;
+        width: 100vw;
+        background: url("pics/bow_bridge_pic2.png") no-repeat center center;
+        background-size: auto 100vh;
+    }
+
+    .image-container {
+        display: flex;
+        flex-flow: column wrap;
+        width: 90vw;
+        row-gap: 15vh;
+        height: 100vh; /*120*/
+        justify-content: flex-start;
+        align-items: center;
+
+        >.bg-image {
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            background-size: cover;
+            overflow: hidden;
+            bottom: 0;
+        }
+    }
+
+    h1 {
+        color: white;
+        position: absolute;
+        align-self: center;
+        margin-top: 12.5vh;
+        z-index: 2;
+    }
+    h2 {
+        color: white;
+        position: absolute;
+        margin-top: 27.5vh;
+        z-index: 2;
+    }
+}
+
+.fade {
+    transition: opacity 0.1s;
+}
+
+#middle-section .image-container:nth-child(1) .bg-image {
+    background: url("pics/smoke_cloud.png") no-repeat center center fixed border-box; /* url("pics/firefront_approaches_firefighters.png"); */
+}
+#middle-section .image-container:nth-child(2) .bg-image {
+    background: url("pics/zoomed_firefront.PNG") no-repeat center center fixed border-box;
+}
+#middle-section .image-container:nth-child(3) .bg-image {
+    background: url("pics/firefront_approaches_firefighters.png") no-repeat center center fixed border-box;
+}
+
 
 /**** **** **** **** PARALLAX **** **** **** ****/
 
@@ -159,68 +260,9 @@ header, footer {
 }
 
 
-.container {
-    overflow: hidden;
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
-    align-items: center;
-}
-
-#upper-wrapper {
-    width: 100vw;
-    height: 100vh;
-    /* background: url("pics/smoke_cloud.png");
-    background-size: cover; */
-    color: white;
-
-    .opening-message{
-        height: 30vh;
-    }
-    .user-warning{
-        height: 10vh;
-        margin-top: auto; /* margin-top: auto sits this item at the very bottom of the flexbox container */
-    }
-
-}
 
 
-/********* IMAGE SECTION *********/
 
-.wiper-transition {
-    position: relative;
-    width: 100vw;
-    height: 85vh;
-    background: black;
-}
-
-#middle-wrapper {
-    width: 100vw;
-    height: 300vh;
-
-    .image-container {
-        width: 100vw;
-        height: 120vh;
-    }
-
-    > :first-of-type {
-        background: url("pics/darker_firefront.PNG"); /* url("pics/firefront_approaches_firefighters.png"); */
-        background-size: cover;
-        z-index: 1;
-    }
-
-    > :nth-of-type(2) {
-        background: lightgray;
-    }
-
-    > :nth-of-type(3) {
-        background: darkgray;
-    }
-}
-.fade {
-    transition: opacity 0.1s;
-
-}
 
 
 
