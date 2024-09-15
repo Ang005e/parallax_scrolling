@@ -1,4 +1,5 @@
 "use strict";
+let time = 0
 // abstract, since static classes don't exist in JS or TS
 class GlobalScroll {
     // "(() => void) | null" is a typescript "union" type stating that this property either...
@@ -15,7 +16,12 @@ class GlobalScroll {
     // Initialise the master scroll event listener on DOMContentLoaded
     static SetListenerOnLoad(callbackIterable) {
         // group ALL callback functions under a single master scroll event
-        this.eventHandler = () => { document.addEventListener('scroll', () => callbackIterable.forEach(callback => callback())); };
+        this.eventHandler = () => {
+            document.addEventListener('scroll', () => {
+                time+=1
+                callbackIterable.forEach(callback => callback())
+            })
+        }
         // set the scroll event on load
         document.addEventListener('DOMContentLoaded', this.eventHandler);
     }

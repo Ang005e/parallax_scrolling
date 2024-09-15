@@ -1,64 +1,73 @@
+
+/*
+Done:
+- Scroll based on provided speed modifier X
+- Switch direction of parallax when scroll direction changes X
+- Prevent frame skip by using requestAnimationFrame() X
+- Lock top by default to prevent over-scrolling X
+- Dynamically update a single scroll listener to avoid multiple listeners in the case of many parallax effects X
+- Throttle parallax move function to prevent too many function calls X
+- Allow the parallax scroll axis to be changed X
+ToDo:
+    Dynamic position handling/infinite scroll - no need for the programmer to position backgrounds, just add a parallax and away you go
+    Adjust the throttling to match device performance
+    Disable parallax layers one-by-one if performance dips by too much.
+
+
+ */
+
 class Parallax {
 
     #axis = 'Y'
-
     constructor(elemSelector, scrollSpeedModifier, offsetY) {
         this.parallax = document.querySelector(elemSelector);
 
+        this.lockAtTop = false
         this.baseTravel = scrollSpeedModifier; // Adjust base travel speed to control parallax effect
         this.currentTransform = offsetY; // set the initial transform to the argued Y offset
         this.lastScrollTop = window.scrollY; // Track last scroll position
 
-        // begin the 5 layer deep callback chain...
-        this.throttledFunc = throttle(this.#evaluateMove.bind(this), 5);
-        GlobalScroll.AppendScrollCallbacks(this.throttledFunc);
+        // Assign throttle(), with onScroll (bound to this instance of Parallax) as an argument, to a variable
+        this.throttledOnScroll = throttle(this.#onScroll.bind(this), 5);
+        // Begin the 5 layer deep callback chain... by passing the above function to a master scroll listener
+        GlobalScroll.AppendScrollCallbacks(this.throttledOnScroll);
 
-        this.#shiftParallax(offsetY); // set the current position to the passed offset
-
-        //window.addEventListener('wheel', this.throttledFunc);
+        (offsetY !== undefined) && (this.#shiftParallax(offsetY)); // set the current position to the passed offset
     }
 
     //region Private Functions
+    #onScroll() {
 
-    #evaluateMove() {
         const currentScrollTop = window.scrollY;
         const distanceScrolled = currentScrollTop - this.lastScrollTop;
         this.lastScrollTop = currentScrollTop;
 
-        this.#onScroll(distanceScrolled);
-    }
-
-    #onScroll(distanceScrolled) {
         const direction = distanceScrolled > 0 ? 'down' : 'up';
         const distance = Math.abs(distanceScrolled) * this.baseTravel;
 
-        if (direction === 'down') {
-            this.currentTransform -= distance;
-        } else {
-            this.currentTransform += distance;
-        }
+        // add or remove the calculated travel distance from the transform value, depending on the scroll direction
+        this.currentTransform += (direction === 'down') ? -(distance) : distance;
+        // prevent the top bounding edge of the image from scrolling into view
+        if (this.lockAtTop && this.currentTransform >= 0) {return}
 
         window.requestAnimationFrame(() => {
             this.#shiftParallax(this.currentTransform);
         });
     }
-
     #shiftParallax(pixY) {
         this.parallax.style.transform = `translate${this.#axis}(${pixY}px)` // translateX(${pixX}px)`;
     }
     //endregion
 
     //region Public Functions
-
     setAxis(axis) {
         if (axis !== 'x' && axis !== 'y') {throw new Error("Incorrect axis argument")}
         this.#axis = axis === 'x' ? 'x' : 'y';
     }
     //endregion
-
 }
 
-function throttle(arguedFunc, delay, ...args) {
+function throttle(arguedFunc, delay /*, ...args*/ ) {
     let throttleOn = false;
 
     return (...args) => {
@@ -73,29 +82,19 @@ function throttle(arguedFunc, delay, ...args) {
     };
 }
 
-const parallax = new Parallax(
-    '#primary-parallax-bg-image', -0.5, -1100
-)
-const secondaryParallax = new Parallax(
-    '#secondary-parallax-bg-image', -0.32, -700
-)
-const tertiaryParallax = new Parallax(
-    '#tertiary-parallax-bg-image', -0.18, -300
-)
-const bottomParallax = new Parallax(
-    '#bottom-parallax-bg-image', -0.06, 0
-)
-const backingImageParallax = new Parallax(
-    '.backing-parallax', -0.1, 0
-)
+const parallax = new Parallax('#primary-parallax-bg-image', -0.5, -1100)
+parallax.lockAtTop = true
+const secondaryParallax = new Parallax('#secondary-parallax-bg-image', -0.32, -700)
+secondaryParallax.lockAtTop = true
+const tertiaryParallax = new Parallax('#tertiary-parallax-bg-image', -0.18, -300)
+tertiaryParallax.lockAtTop = true
+const bottomParallax = new Parallax('#bottom-parallax-bg-image', -0.05, -50)
+bottomParallax.lockAtTop = true
+const backingImageParallax = new Parallax('.backing-parallax', -0.1, 0)
 backingImageParallax.setAxis('x')
 
-/*
-const wiperTransitionParallax = new Parallax(
-    '.wiper-transition', 0.75, 700
-)
-*/
 
+/* **** Loading Screen *** */
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(()=>{
         document.querySelector('#loading-overlay').style.transform = 'translateY(-100vh)'
@@ -104,58 +103,21 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(()=>{
         document.querySelector('#loading-overlay').style.opacity = '0.5';
     }, 200)
-
-})
-
-/*
-document.addEventListener('keydown', (event) => {
-    keyEvent(event)
 })
 
 
-let flag = false
-function keyEvent(event) {
-
-    // large increments/checkpoints for enter key,
-    // smooth, slow, continuous scrolls for down arrow
-
-    if (event.code === 'Enter') {
-        event.preventDefault()
-        scrollSmoothly( 2450, 12000, 2)
-    }
-}
-
-function throwFlag(duration) {
-    flag = true
-    setTimeout(()=>{
-        flag = false
-    }, duration)
-}
-
-function scrollSmoothly(totalPx, scrollTime, interval) {
-    let startTime = performance.now();
-    let startScrollY = window.scrollY;
-
-    let handler = setInterval(() => {
-        let now = performance.now()
-        let elapsed = (now - startTime)
-        let fraction = Math.min(elapsed / scrollTime, 1)
-        let progress = totalPx * fraction;
-        window.requestAnimationFrame(()=>
-            window.scrollTo({top: startScrollY + progress, behavior:'instant'}))
-        if (fraction >= 1) {clearInterval(handler)}
-    }, interval)
-}
-
-*/
-
+/* **** Performance Testing **** */
 /*
-const scrollToTop = () => {
-    const c = document.documentElement.scrollTop || document.body.scrollTop;
-    if (c > 0) {
-        window.requestAnimationFrame(scrollToTop);
-        window.scrollTo(0, c - c / 8);
+let dist = 1
+let scrollBounds = document.body.scrollHeight - document.documentElement.clientHeight
+console.log(scrollBounds)
+
+setInterval(()=>{
+    if(time > 1000) {
+        time = 0;
     }
-};
-scrollToTop();
+    let current = document.documentElement.scrollTop
+    if ((current >= scrollBounds-20 && (Math.abs(dist) !== -1)) || current <= 20 && (Math.abs(dist) !== 1)) {dist = -(dist)} // flip sign
+    window.scrollBy({top: dist, left: 0, behavior: 'instant'})
+}, 1)
 */

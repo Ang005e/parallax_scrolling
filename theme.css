@@ -233,7 +233,6 @@ header, footer {
 }
 #bottom-parallax-bg-image {
     height: 109vh;
-    top: -9vh;
     opacity: 1;
     z-index: -4;
     transform: translateY(0);
