@@ -90,8 +90,8 @@ const tertiaryParallax = new Parallax('#tertiary-parallax-bg-image', -0.18, -300
 tertiaryParallax.lockAtTop = true
 const bottomParallax = new Parallax('#bottom-parallax-bg-image', -0.05, -50)
 bottomParallax.lockAtTop = true
-const backingImageParallax = new Parallax('.backing-parallax', -0.1, 0)
-backingImageParallax.setAxis('x')
+// const backingImageParallax = new Parallax('.backing-parallax', -0.1, 0)
+// backingImageParallax.setAxis('x')
 
 
 /* **** Loading Screen *** */
