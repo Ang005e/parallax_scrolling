@@ -206,7 +206,7 @@ header, footer {
 
 #primary-parallax-bg-image, #secondary-parallax-bg-image, #tertiary-parallax-bg-image, #bottom-parallax-bg-image {
     /* transition: background-position 200ms cubic-bezier(0.235, 0.615, 0.185, 0.995); */
-    transform: translateZ(0) translateY(-800px);
+    transform: translateZ(0);
 
     opacity: 0.25;
 
@@ -224,7 +224,6 @@ header, footer {
 #secondary-parallax-bg-image {
     opacity: 0.25;
     z-index: -2;
-    transform: translateY(-400px);
 }
 #tertiary-parallax-bg-image {
     opacity: 0.25;

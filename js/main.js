@@ -82,11 +82,11 @@ function throttle(arguedFunc, delay /*, ...args*/ ) {
     };
 }
 
-const parallax = new Parallax('#primary-parallax-bg-image', -0.5, -1100)
+const parallax = new Parallax('#primary-parallax-bg-image', -0.5, -2100)
 parallax.lockAtTop = true
-const secondaryParallax = new Parallax('#secondary-parallax-bg-image', -0.32, -700)
+const secondaryParallax = new Parallax('#secondary-parallax-bg-image', -0.32, -1500)
 secondaryParallax.lockAtTop = true
-const tertiaryParallax = new Parallax('#tertiary-parallax-bg-image', -0.18, -300)
+const tertiaryParallax = new Parallax('#tertiary-parallax-bg-image', -0.18, -700)
 tertiaryParallax.lockAtTop = true
 const bottomParallax = new Parallax('#bottom-parallax-bg-image', -0.05, -50)
 bottomParallax.lockAtTop = true
