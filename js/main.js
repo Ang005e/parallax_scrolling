@@ -182,11 +182,12 @@ function throttle(arguedFunc, delay /*, ...args*/ ) {
 }
 
 const parallax = new Parallax('#primary-parallax-bg-image', -0.5)
-parallax.offset(100)
 parallax.layerRef = '1'
 const secondaryParallax = new Parallax('#secondary-parallax-bg-image', -0.32)
+secondaryParallax.offset(-600)
 secondaryParallax.layerRef = '1'
 const tertiaryParallax = new Parallax('#tertiary-parallax-bg-image', -0.18)
+parallax.offset(-300)
 tertiaryParallax.layerRef = '1'
 const bottomParallax = new Parallax('#bottom-parallax-bg-image', -0.05)
 bottomParallax.layerRef = '1'
