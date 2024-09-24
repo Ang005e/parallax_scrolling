@@ -196,7 +196,7 @@ bottomParallax.layerRef = '1'
 
 
 /* **** Loading Screen *** */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('loadeddata', () => {
     setTimeout(()=>{
         document.querySelector('#loading-overlay').style.transform = 'translateY(-100vh)'
         document.querySelector('#loading-overlay').style.opacity = '0.85'
