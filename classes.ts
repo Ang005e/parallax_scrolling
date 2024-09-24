@@ -7,7 +7,7 @@ abstract class GlobalScroll {
     private static eventCallbacks : Array<Function> = [];
 
     // reference functions, to allow the removal of listeners (as opposed to anonymous functions which cannot be referenced)
-private static eventHandler: (() => void) | null = null
+    private static eventHandler: (() => void) | null = null
     // "(() => void) | null" is a typescript "union" type stating that this property either...
     // a: takes no arguments and returns nothing, OR
     // b: can be of value "null"

@@ -13,6 +13,7 @@ Photo by <a href="https://unsplash.com/@heftiba?utm_content=creditCopyText&utm_m
     width: 100vw;
     height: 100vh;
     transition: opacity 2.5s ease-in-out, transform 2s ease-in-out;
+    -moz-transition: opacity 2.5s ease-in-out, transform 2s ease-in-out;
 
     h1 {
         color: white;
@@ -40,9 +41,6 @@ body {
     background: rgb(255, 255, 255);
     scroll-behavior: smooth;
 
-    /**** **** **** **** REMOVE POST-OPTIMISATION **** **** **** ****/
-    will-change: scroll-position;
-    /**** **** **** **** **** **** **** **** **** **** **** **** ****/
 }
 
 text {
@@ -93,7 +91,7 @@ header, footer {
     left: 0;
     width: 100%;
     height: 100%;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(3px);
 }
 
 
@@ -136,7 +134,7 @@ header, footer {
 
     .wiper-transition, .wiper-transition-bottom {
         width: 100vw;
-        height: 10vh;
+        height: 11vh;
         background: black;
     }
 
@@ -209,11 +207,7 @@ header, footer {
     transform: translateZ(0) translateY(-800px);
 
     opacity: 0.25;
-
-    /**** **** **** **** REMOVE POST-OPTIMISATION **** **** **** ****/
-    will-change: transformY;
-    /**** **** **** **** **** **** **** **** **** **** **** **** ****/
-
+    
     position: absolute;
     z-index: -1;
     width: 100vw;
@@ -229,7 +223,7 @@ header, footer {
 #tertiary-parallax-bg-image {
     opacity: 0.25;
     z-index: -3;
-    transform: translateY(0);
+    transform: translateY(500px);
 }
 #bottom-parallax-bg-image {
     height: 109vh;
@@ -246,7 +240,7 @@ header, footer {
     height: 100vh;
     top: 0;
     left: 0;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(5px);
 }
 #bg-wrapper {
     position: fixed;
